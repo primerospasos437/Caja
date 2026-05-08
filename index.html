@@ -175,7 +175,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 
 <div class="hdr">
   <div class="hdr-top">
-    <div class="hdr-title">💼 Caja & Delivery</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="hdr-title">💼 Caja</div>
+      <button id="btnCalc" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700">🧮</button>
+    </div>
     <div class="date-sel">
       <button class="dbtn" id="btnPrev">‹</button>
       <div class="ddisp" id="dateDisp">—</div>
@@ -1386,6 +1389,52 @@ if(!getClientId()){
     // Don't auto-show setup, let user click the button
   },0);
 }
+</script>
+
+<!-- CALCULADORA -->
+<div id="calcModal" style="display:none;position:fixed;bottom:80px;right:20px;z-index:500;background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.2);padding:16px;width:220px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-size:13px;font-weight:800;color:#6b7280">🧮 Calculadora</div>
+    <button onclick="document.getElementById('calcModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af">×</button>
+  </div>
+  <div id="calcDisplay" style="background:#f0fdf4;border:1px solid #d1fae5;border-radius:8px;padding:10px;font-size:22px;font-weight:800;text-align:right;color:#1A6B3C;margin-bottom:10px;min-height:44px;word-break:break-all">0</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+    <button class="cbtn" data-calc="7">7</button>
+    <button class="cbtn" data-calc="8">8</button>
+    <button class="cbtn" data-calc="9">9</button>
+    <button class="cbtn cbtn-op" data-calc="/">÷</button>
+    <button class="cbtn" data-calc="4">4</button>
+    <button class="cbtn" data-calc="5">5</button>
+    <button class="cbtn" data-calc="6">6</button>
+    <button class="cbtn cbtn-op" data-calc="*">×</button>
+    <button class="cbtn" data-calc="1">1</button>
+    <button class="cbtn" data-calc="2">2</button>
+    <button class="cbtn" data-calc="3">3</button>
+    <button class="cbtn cbtn-op" data-calc="-">−</button>
+    <button class="cbtn" data-calc="0">0</button>
+    <button class="cbtn" data-calc=".">.</button>
+    <button class="cbtn cbtn-eq" data-calc="=">=</button>
+    <button class="cbtn cbtn-op" data-calc="+">+</button>
+    <button class="cbtn cbtn-clear" data-calc="C" style="grid-column:1/3">C</button>
+    <button class="cbtn cbtn-clear" data-calc="⌫" style="grid-column:3/5">⌫</button>
+  </div>
+</div>
+<style>
+.cbtn{padding:10px;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:15px;font-weight:700;font-family:inherit;background:#f9fafb;color:#374151}
+.cbtn:hover{background:#f0fdf4;border-color:#1A6B3C}
+.cbtn-op{background:#fffbeb;color:#92400e;border-color:#fcd34d}
+.cbtn-eq{background:#1A6B3C;color:#fff;border-color:#1A6B3C}
+.cbtn-clear{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+</style>
+<script>
+// Bloquear flechas arriba/abajo en inputs numericos
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+    }
+  }
+});
 </script>
 </body>
 </html>

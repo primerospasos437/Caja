@@ -323,8 +323,10 @@ const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 function emptyDay() {
   return {
     cajaInicial:0, ingresos:[], egresos:[], retiros:[],
-    medios:{totalVentas:0,tarjetas:0,openpay:0,cuenta_dni:0,buepp:0,mp:0,ml:0},
-    manoActual:0, pedidos:[], zonas:JSON.parse(JSON.stringify(ZONAS_DEF))
+    medios:{tarjetas:0,openpay:0,cuenta_dni:0,buepp:0,mp:0,ml:0},
+    totalVentas:0, pedidosPendientes:0, cajaCambio:0,
+    manoActual:0, pedidos:[], zonas:JSON.parse(JSON.stringify(ZONAS_DEF)),
+    movimientos:[]
   };
 }
 
@@ -355,7 +357,10 @@ function loadDay(d) {
   dayData = allData[k] ? JSON.parse(JSON.stringify(allData[k])) : emptyDay();
   if (!dayData.zonas) dayData.zonas = JSON.parse(JSON.stringify(ZONAS_DEF));
   if (!dayData.medios) dayData.medios = {totalVentas:0,tarjetas:0,openpay:0,cuenta_dni:0,buepp:0,mp:0,ml:0};
-  ['ingresos','egresos','retiros','pedidos'].forEach(k => { if (!dayData[k]) dayData[k] = []; });
+  ['ingresos','egresos','retiros','pedidos','movimientos'].forEach(k => { if (!dayData[k]) dayData[k] = []; });
+  if (dayData.totalVentas === undefined) dayData.totalVentas = 0;
+  if (dayData.pedidosPendientes === undefined) dayData.pedidosPendientes = 0;
+  if (dayData.cajaCambio === undefined) dayData.cajaCambio = 0;
   render();
 }
 

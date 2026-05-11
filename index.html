@@ -218,59 +218,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <button class="calclose" id="calCloseBtn">Cerrar</button>
   </div>
 </div>
-
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <div class="step-title">Crear un proyecto nuevo</div>
-        <div class="step-desc">Hacé clic en el menú de proyectos (arriba a la izquierda) → "Nuevo proyecto" → ponele el nombre que quieras (ej: <code>MiCaja</code>) → Crear.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <div class="step-title">Activar la API de Drive</div>
-        <div class="step-desc">Buscá "Google Drive API" en la barra de búsqueda → entrá → hacé clic en <strong>Habilitar</strong>.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <div class="step-title">Crear credenciales OAuth</div>
-        <div class="step-desc">
-          Ir a <strong>APIs y servicios → Credenciales → + Crear credenciales → ID de cliente OAuth</strong><br><br>
-          - Tipo: <strong>Aplicación web</strong><br>
-          - Nombre: lo que quieras<br>
-          - Orígenes autorizados: la URL donde usás la app (ej: <code>https://mi-caja.netlify.app</code> o <code>http://localhost</code> para pruebas locales)<br><br>
-          Hacé clic en <strong>Crear</strong>.
-        </div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num">5</div>
-      <div class="step-body">
-        <div class="step-title">Configurar pantalla de consentimiento</div>
-        <div class="step-desc">Si te pide configurar la pantalla OAuth: elegí <strong>Externo</strong> → completá nombre de app y email → Guardar. Después en "Usuarios de prueba" agregá tu email de Google.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num">6</div>
-      <div class="step-body">
-        <div class="step-title">Copiar el Client ID</div>
-        <div class="step-desc">Una vez creadas las credenciales, copiá el <strong>ID de cliente</strong> (termina en <code>.apps.googleusercontent.com</code>) y pegalo acá abajo.</div>
-      </div>
-    </div>
-
-    <input class="setup-inp" id="clientIdInput" placeholder="Pegá tu Client ID acá (termina en .apps.googleusercontent.com)" type="text">
-    <button class="btn-setup" id="btnSaveClientId">Guardar y conectar con Drive</button>
-    <button class="btn-skip" id="btnSkipSetup">Usar sin Drive (solo local)</button>
-  </div>
-</div>
-
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script>
 "use strict";

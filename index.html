@@ -191,7 +191,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <span id="driveMsg" style="font-size:11px;color:rgba(255,255,255,.7)">Drive no configurado</span>
     </div>
     <div class="drivebtns">
-      <button class="drivebtn" id="btnDriveSetup">⚙️ Configurar Drive</button>
       <button class="drivebtn" id="btnDriveConnect" style="display:none">🔗 Conectar</button>
       <button class="drivebtn" id="btnDriveDisconnect" style="display:none">Desconectar</button>
       <button class="drivebtn fin" id="btnFinalizar">✅ Finalizar día</button>
@@ -219,20 +218,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <button class="calclose" id="calCloseBtn">Cerrar</button>
   </div>
 </div>
-
-<!-- SETUP MODAL -->
-<div class="setup-ov" id="setupModal" style="display:none">
-  <div class="setup-box">
-    <h2>🔗 Conectar con Google Drive</h2>
-    <p>Para sincronizar tus datos automáticamente necesitás crear una clave gratuita de Google. Son 5 minutos y se hace una sola vez.</p>
-
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <div class="step-title">Ir a Google Cloud Console</div>
-        <div class="step-desc">Abrí <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> e iniciá sesión con tu cuenta de Google.</div>
-      </div>
-    </div>
 
     <div class="step">
       <div class="step-num">2</div>
@@ -384,7 +369,7 @@ setInterval(() => {
 // ══════════════════════════════════════════════════════
 // GOOGLE DRIVE
 // ══════════════════════════════════════════════════════
-function getClientId() { return localStorage.getItem('cajaClientId') || ''; }
+function getClientId() { return '540015184087-ndan8u6ah0opgsifluqgr0hoqfpjmeb8.apps.googleusercontent.com'; } // Client ID fijo
 function saveClientId(id) { localStorage.setItem('cajaClientId', id); }
 
 function initDriveAuth() {
@@ -1337,27 +1322,11 @@ document.querySelectorAll('.tab').forEach(t=>{
 });
 
 // Drive buttons
-document.getElementById('btnDriveSetup').addEventListener('click',()=>{
-  document.getElementById('setupModal').style.display='flex';
-});
+
 document.getElementById('btnDriveConnect').addEventListener('click',connectDrive);
 document.getElementById('btnDriveDisconnect').addEventListener('click',disconnectDrive);
 
-document.getElementById('btnSaveClientId').addEventListener('click',()=>{
-  const id=(document.getElementById('clientIdInput').value||'').trim();
-  if(!id||!id.includes('.apps.googleusercontent.com')){
-    alert('El Client ID no parece válido. Debe terminar en .apps.googleusercontent.com');return;
-  }
-  saveClientId(id);
-  document.getElementById('setupModal').style.display='none';
-  showToast('Client ID guardado. Hacé clic en "Conectar" para iniciar sesión.',4000);
-  initDriveAuth();
-});
 
-document.getElementById('btnSkipSetup').addEventListener('click',()=>{
-  document.getElementById('setupModal').style.display='none';
-  showToast('Usando modo local. Podés configurar Drive cuando quieras.',3000);
-});
 
 // ══════════════════════════════════════════════════════
 // INIT
@@ -1383,12 +1352,7 @@ window.addEventListener('load',()=>{
   }
 });
 
-// Show setup on first use if no client ID
-if(!getClientId()){
-  setTimeout(()=>{
-    // Don't auto-show setup, let user click the button
-  },0);
-}
+
 </script>
 
 <!-- CALCULADORA -->
@@ -1426,6 +1390,72 @@ if(!getClientId()){
 .cbtn-eq{background:#1A6B3C;color:#fff;border-color:#1A6B3C}
 .cbtn-clear{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
 </style>
+<script>
+// ── CALCULADORA ──────────────────────────────────────
+let calcExpr = '';
+let calcJustEvaled = false;
+
+document.getElementById('btnCalc').addEventListener('click', function() {
+  var m = document.getElementById('calcModal');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+});
+
+document.querySelectorAll('.cbtn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var v = btn.dataset.calc;
+    var disp = document.getElementById('calcDisplay');
+    if (v === 'C') { calcExpr = ''; disp.textContent = '0'; calcJustEvaled = false; return; }
+    if (v === '⌫') { calcExpr = calcExpr.slice(0,-1); disp.textContent = calcExpr || '0'; return; }
+    if (v === '=') {
+      try {
+        var result = Function('"use strict";return (' + calcExpr + ')')();
+        var r = parseFloat(result.toFixed(2));
+        disp.textContent = r.toLocaleString('es-AR', {maximumFractionDigits:2});
+        calcExpr = String(r);
+        calcJustEvaled = true;
+      } catch(e) { disp.textContent = 'Error'; calcExpr = ''; }
+      return;
+    }
+    if (calcJustEvaled && !'+-*/'.includes(v)) { calcExpr = ''; calcJustEvaled = false; }
+    calcJustEvaled = false;
+    calcExpr += v;
+    disp.textContent = calcExpr;
+  });
+});
+
+// Teclado en calculadora
+document.addEventListener('keydown', function(e) {
+  var m = document.getElementById('calcModal');
+  if (m.style.display === 'none') return;
+  var key = e.key;
+  if ('0123456789.'.includes(key)) { document.querySelector('[data-calc="'+key+'"]').click(); }
+  else if (key === '+') { document.querySelector('[data-calc="+"]').click(); }
+  else if (key === '-') { document.querySelector('[data-calc="-"]').click(); }
+  else if (key === '*') { document.querySelector('[data-calc="*"]').click(); }
+  else if (key === '/') { e.preventDefault(); document.querySelector('[data-calc="/"]').click(); }
+  else if (key === 'Enter' || key === '=') { e.preventDefault(); document.querySelector('[data-calc="="]').click(); }
+  else if (key === 'Backspace') { document.querySelector('[data-calc="⌫"]').click(); }
+  else if (key === 'Escape') { m.style.display = 'none'; }
+});
+
+// Enter avanza al siguiente campo
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  var m = document.getElementById('calcModal');
+  if (m && m.style.display !== 'none') return;
+  var el = document.activeElement;
+  if (!el || !['INPUT','SELECT','TEXTAREA'].includes(el.tagName)) return;
+  e.preventDefault();
+  var fields = Array.from(document.querySelectorAll('#content input, #content select, #content textarea'));
+  var idx = fields.indexOf(el);
+  if (idx >= 0 && idx < fields.length - 1) {
+    fields[idx + 1].focus();
+    setTimeout(function() { if (fields[idx+1].select) fields[idx+1].select(); }, 0);
+  } else {
+    el.blur();
+  }
+});
+</script>
 <script>
 // Bloquear flechas arriba/abajo en inputs numericos
 document.addEventListener('keydown', function(e) {

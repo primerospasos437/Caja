@@ -544,6 +544,7 @@ function calcTotals() {
   const tR     = (d.retiros||[]).reduce((s,i)=>s+(parseFloat(i.monto)||0),0);
   const tV     = parseFloat(d.totalVentas)||0;  // total ventas ingresado manualmente
   const tEl    = EK.reduce((s,k)=>s+(parseFloat(d.medios[k])||0),0);
+  const tElNoML = ['tarjetas','openpay','cuenta_dni','buepp','mp'].reduce((s,k)=>s+(parseFloat(d.medios[k])||0),0);
   const tEf    = Math.max(0, tV - tEl);         // efectivo de ventas
   const tPendM = parseFloat(d.pedidosPendientes)||0; // pedidos pendientes manuales
   const pendP  = (d.pedidos||[]).filter(p=>p.estado==='pendiente'&&String(p.abona).toLowerCase()!=='pago'&&(parseFloat(p.cobrar)||0)>0);
@@ -710,20 +711,24 @@ function renderCaja() {
   h += '<div class="card"><div class="ctitle">💳 Cobros electrónicos — se restan</div>' +
     '<div class="g2">' +
       '<div class="fld"><div class="flbl">💳 Tarjetas</div><input class="inp inpr" type="number" data-action="tarjetas" value="' + (d.medios.tarjetas||0) + '"></div>' +
-      '<div class="fld"><div class="flbl">🟠 Open Pay</div><input class="inp inpr" type="number" data-action="openpay" value="' + (d.medios.openpay||0) + '"></div>' +
       '<div class="fld"><div class="flbl">🏦 Cuenta DNI</div><input class="inp inpr" type="number" data-action="cuenta_dni" value="' + (d.medios.cuenta_dni||0) + '"></div>' +
-      '<div class="fld"><div class="flbl">🔵 Buepp</div><input class="inp inpr" type="number" data-action="buepp" value="' + (d.medios.buepp||0) + '"></div>' +
+      '<div class="fld"><div class="flbl">🟠 Open Pay</div><input class="inp inpr" type="number" data-action="openpay" value="' + (d.medios.openpay||0) + '"></div>' +
       '<div class="fld"><div class="flbl">📱 Mercado Pago</div><input class="inp inpr" type="number" data-action="mp" value="' + (d.medios.mp||0) + '"></div>' +
-      '<div class="fld"><div class="flbl">🛒 Mercado Libre</div><input class="inp inpr" type="number" data-action="ml" value="' + (d.medios.ml||0) + '"></div>' +
+      '<div class="fld"><div class="flbl">🔵 Buepp</div><input class="inp inpr" type="number" data-action="buepp" value="' + (d.medios.buepp||0) + '"></div>' +
     '</div>' +
-    '<div class="subrow nbg" style="margin-top:10px"><span class="sublbl">SUBTOTAL ELECTRÓNICO</span><span id="sub-el" class="subval neg">-' + fmt(t.tEl) + '</span></div>' +
+    '<div class="subrow nbg" style="margin-top:10px"><span class="sublbl">SUBTOTAL ELECTRÓNICO (sin ML)</span><span id="sub-el" class="subval neg">-' + fmt(t.tEl) + '</span></div>' +
+    '<div style="margin-top:10px;padding:10px 12px;background:#fef9c3;border:1px solid #fde047;border-radius:10px">' +
+      '<div class="fld"><div class="flbl" style="color:#854d0e">🛒 Mercado Libre (se acredita después)</div>' +
+      '<input class="inp inpr" type="number" data-action="ml" value="' + (d.medios.ml||0) + '" style="border-color:#fde047;background:#fefce8"></div>' +
+    '</div>' +
   '</div>';
 
   // ── CIERRE ───────────────────────────────────────────
-  const bc = t.ok ? '#16a34a' : '#dc2626';
-  const rc = t.ok ? '#166534' : '#991b1b';
   const absDiff = Math.abs(t.diff);
   const diffStr = t.diff===0 ? '$0' : fmt(absDiff);
+  const bc = t.ok ? '#16a34a' : (t.diff > 0 ? '#2563eb' : '#dc2626');
+  const rc = t.ok ? '#166534' : (t.diff > 0 ? '#1e40af' : '#991b1b');
+  const resBg = t.ok ? '#dcfce7' : (t.diff > 0 ? '#dbeafe' : '#fee2e2');
   const resultMsg = t.ok ? '✓ La caja cuadra' : (t.diff > 0 ? '↑ Sobran ' + fmt(absDiff) : '↓ Faltan ' + fmt(absDiff));
 
   h += '<div class="card" id="cierre-card" style="border:2px solid ' + bc + '">' +
@@ -762,7 +767,7 @@ function renderCaja() {
       '<input type="number" data-action="cajaCambio" value="' + (d.cajaCambio||0) + '" placeholder="0" style="width:90px;padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;font-weight:700;text-align:right;background:#fff;font-family:inherit;color:#374151">' +
     '</div>' +
 
-    '<div class="resbox ' + (t.ok?'ok':'mal') + '" id="res-box">' +
+    '<div class="resbox" id="res-box" style="background:' + resBg + '">' +
       '<div class="resnum" id="res-num" style="color:' + rc + '">' + diffStr + '</div>' +
       '<div class="reslbl" id="res-lbl" style="color:' + rc + '">' + resultMsg + '</div>' +
     '</div>' +
@@ -1409,6 +1414,52 @@ document.addEventListener('keydown', function(e) {
 });
 </script>
 <script>
+// ── FORMATO MONEDA ──────────────────────────────────
+// ── FORMATO MONEDA EN INPUTS NUMÉRICOS ───────────────
+function formatCurrency(n) {
+  const num = parseFloat(String(n).replace(/\./g,'').replace(',','.')) || 0;
+  return '$ ' + num.toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+
+function applyFormatToNumberInputs() {
+  document.querySelectorAll('#content input[type="number"], .manoinp').forEach(function(el) {
+    const val = parseFloat(el.value) || 0;
+    if (val !== 0) {
+      // Convert to text input visually using a sibling approach
+    }
+  });
+}
+
+// Al perder foco: mostrar formato moneda
+document.addEventListener('focusout', function(e) {
+  const el = e.target;
+  if (el.tagName !== 'INPUT') return;
+  if (el.type !== 'number' && !el.classList.contains('manoinp')) return;
+  // Skip if it's the calculator
+  if (el.closest('#calcModal')) return;
+  const val = parseFloat(el.value) || 0;
+  if (val === 0) return;
+  // Switch to text, show formatted
+  el.dataset.rawValue = el.value;
+  el.type = 'text';
+  el.value = '$ ' + val.toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
+  el.style.color = el.style.color || '#374151';
+});
+
+// Al hacer foco: volver a número para edición
+document.addEventListener('focusin', function(e) {
+  const el = e.target;
+  if (el.tagName !== 'INPUT') return;
+  if (el.type === 'text' && el.value.startsWith('$')) {
+    // Extract raw number
+    const raw = el.value.replace(/\$\s?/g,'').replace(/\./g,'').replace(',','.').trim();
+    const num = parseFloat(raw) || 0;
+    el.type = 'number';
+    el.value = num === 0 ? '' : String(num);
+    setTimeout(function() { el.select(); }, 0);
+  }
+});
+
 // Bloquear flechas arriba/abajo en inputs numericos
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' && e.target.type === 'number') {

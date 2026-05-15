@@ -1241,7 +1241,7 @@ document.getElementById('content').addEventListener('click', e => {
   }
   else if(action==='add-retiros'){
     const desc=(document.getElementById('retD').value||'').trim(), monto=parseInputVal(document.getElementById('retM'));
-    if(desc&&monto){dayData.retiros.push({desc,monto});sched();render();}
+    if(monto){dayData.retiros.push({desc:desc||'Retiro',monto});sched();render();}
   }
   else if(action==='add-pedido'){
     if(!dayData.pedidos) dayData.pedidos=[];
